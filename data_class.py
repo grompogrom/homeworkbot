@@ -28,9 +28,13 @@ class User:
     def set_quantity_weaks(self,q):
         self.quantity_weaks = q
 
+    def get_current_reg_day(self):
+        return self.days_list[self.curent_reg_day]
+
     def add_day(self, day):
-        if day not in self.days.keys():
+        if day not in self.days_list:
             self.days.update({day: None})
+            self.days_list.append(day)
 
     def add_lessons(self, lesson):
         if lesson not in self.lessons.keys():
@@ -40,8 +44,6 @@ class User:
 
     def compile_day(self):
         if self.status == 'day_ready':
-            if not self.days_list:
-                self.days_list = list(self.days.keys())
             self.days[self.days_list[self.curent_reg_day]] = self.lessons
             self.lessons = {}
             self.curent_reg_day += 1
@@ -136,48 +138,49 @@ def registration(user_id, reg_info= None):
         reg_info= reg_info.lower()
     except AttributeError:
         pass
+    answer = ''
     for user in list(users.values()):
         if user.group_name == reg_info and user.status == ('reg' or 'add_homework'):
             users[user_id] = user
 
     if user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
-        print('to chose days')
+        answer = 'Выбереите дни'
         # send request to chose days
     elif users[user_id].status == 'reged_user':
         # chose days
         if not reg_info == 'done':
-            print('to chose days')
             users[user_id].add_day(reg_info)
+            answer = 'Выбереите дни'
         else:
             users[user_id].enter_lessons_status()
-            print('введите урок')
-
+            answer = f'Добавьте первую пару на {users[user_id].get_current_reg_day()} (совет: ' \
+                     f'добавляйте пары по которым могут выдать задание) '
             # send request to fill lessons
     elif users[user_id].status == 'enter_lessons':
         if not reg_info == 'done':
             users[user_id].add_lessons(reg_info)
-            print('введите урок')
+            answer = 'Добавьте пару'
             # send request to fill lessons and current day
         else:
             users[user_id].day_ready_status()
             users[user_id].compile_day()
             if users[user_id].status == 'week_ready' and users[user_id].quantity_weaks == 1:
-                print('Добавить числитель?')
+                answer = 'Добавить числитель?'
             elif users[user_id].status == 'enter_lessons':
-                print('следующий день. введите уроки')
+                answer = f'Добавьте пару на {users[user_id].get_current_reg_day()}'
             else:
                 registration(user_id)
             # send request to fill lessons and current day
     elif users[user_id].status == 'week_ready':
         if reg_info == 'add_week':
             users[user_id].set_quantity_weaks(2)
-            print('след неделя, день, введите урок')
+            print(f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару')
         users[user_id].compile_week()
 
         print(users[user_id].week_list)
     print('log '+ users[user_id].status)
-
+    return answer
 
 def chating(user_id):
     pass
@@ -186,7 +189,7 @@ def chating(user_id):
 if __name__ == '__main__':
     i = 123
     while True:
-        registration(i,reg_info=input('reg_info: '))
+        print(registration(i,reg_info=input('reg_info: ')))
 
 
 
