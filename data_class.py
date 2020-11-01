@@ -7,12 +7,14 @@ class User:
     week_ready,
     reged,
     add_homework
+    add_homework_chose_lesson
+    add_homework_chose_day
     """
 
     def __init__(self, chat_id, group_name):
         self.chat_id = chat_id
         self.status = 'reged_user'
-        self.group_name = group_name.lower() # use Upper
+        self.group_name = group_name.lower()  # use Upper
         self.curent_reg_day = 0
         self.days = {}
         self.lessons = {}
@@ -21,11 +23,12 @@ class User:
         self.curent_reg_week = 0
         self.lessons_list = []
         self.quantity_weaks = 1
+        self.homework = []
 
     def day_ready_status(self):
         self.status = 'day_ready'
 
-    def set_quantity_weaks(self,q):
+    def set_quantity_weaks(self, q):
         self.quantity_weaks = q
 
     def get_current_reg_day(self):
@@ -60,17 +63,25 @@ class User:
             self.status = 'enter_lessons'
         else:
             self.status = 'reged'
+            reged_users.append(self.chat_id)
         self.curent_reg_day = 0
         self.days = {}
         self.lessons = {}
 
     def enter_lessons_status(self):
         self.status = 'enter_lessons'
-# methods for reged users
+
+    # methods for reged users
+    def add_homework_chose_lesson_status(self):
+        self.status = 'add_homework_chose_lesson'
+
+    def add_homework_chose_day_status(self):
+        self.status = 'add_homework_chose_day'
+
     def add_homework_status(self):
         self.status = 'add_homework'
 
-    def add_homework(self, lesson, week, homework):
+    def add_homework(self):
         """
         takes week "0,1" ;
         lesson;
@@ -78,13 +89,8 @@ class User:
         and add homework to next day that have this lesson.
         :returns False if there is not this lesson or not correct status:
         """
-        if lesson in self.lessons_list and self.status == 'add_homework':
-            for day in self.week_list[week].values():
-                if lesson in day:
-                    if not day[lesson]:
-                        day[lesson] = homework
-                        self.status = 'reged'
-                        return
+        if self.homework[0] in self.lessons_list and self.status == 'add_homework':
+            self.week_list[self.homework[0]][self.homework[1][0]][self.homework[1][1]] = self.homework[2]
         else:
             self.status = 'reged'
             return False
@@ -117,25 +123,18 @@ class User:
 
 
 users = {}
+reged_users = []
 
 
-def check_user(user_id):
-    if user_id not in list(users.keys()):
-        return False
-    else:
-        return
-
-
-def registration(user_id, reg_info= None):
+def registration(user_id, reg_info=None):  # need to add keyboard in answer
     """
-
+    Takes unreged user
     :param user_id:
     :param reg_info:
-    :param group:
     :return:
     """
     try:
-        reg_info= reg_info.lower()
+        reg_info = reg_info.lower()
     except AttributeError:
         pass
     answer = ''
@@ -175,22 +174,52 @@ def registration(user_id, reg_info= None):
     elif users[user_id].status == 'week_ready':
         if reg_info == 'add_week':
             users[user_id].set_quantity_weaks(2)
-            print(f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару')
+            answer = f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару'
         users[user_id].compile_week()
 
         print(users[user_id].week_list)
-    print('log '+ users[user_id].status)
+    print('log ' + users[user_id].status)
     return answer
 
-def chating(user_id):
-    pass
+
+def fill_homework(user_id, message):
+    user = users[user_id]
+    message = message.lower()
+
+    if message == 'добавить дз' and user.status == 'reged':
+        user.add_homework_chose_lesson_status()
+        return 'выберите предмет'
+    elif user.status == 'add_homework_chose_lesson':
+        user.homework.append(message)
+        user.add_homework_chose_day_status()
+        return 'выберите день'
+    elif user.status == 'add_homework_chose_day':
+        user.homework.append(message)
+        user.add_homework_status()
+        return 'Отправте дз'
+    elif user.status == 'add_homework':
+        user.homework.append(message)
+        if not user.add_homework():
+            return 'ошибка добавления'
+        else:
+            return 'задание отправлено'
+    else:
+        pass
+
+
+def chating(user_id, message):
+    if user_id not in reged_users:
+        answer = registration(user_id, message)
+    elif message == 'добавить дз' and users[user_id].status == 'reged' or \
+            users[user_id].status.startswith('add_homework'):
+        answer = fill_homework(user_id, message)
+    else:
+        answer = 'не понял'
+
+    return answer
 
 
 if __name__ == '__main__':
     i = 123
     while True:
-        print(registration(i,reg_info=input('reg_info: ')))
-
-
-
-
+        print(chating(i, input('reg_info: ')))
