@@ -1,10 +1,10 @@
 from telebot import types
 
-start_keybard = types.ReplyKeyboardMarkup()
+start_keyboard = types.ReplyKeyboardMarkup()
 
 item_check = types.KeyboardButton('Узнать дз')
 item_add = types.KeyboardButton('Добавить дз')
-start_keybard.add(item_check, item_add)
+start_keyboard.add(item_check, item_add)
 
 days_keyboard = types.ReplyKeyboardMarkup()
 days_keyboard.add(['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'готово'])
