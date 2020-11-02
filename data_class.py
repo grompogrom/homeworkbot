@@ -6,9 +6,15 @@ class User:
     day_ready,
     week_ready,
     reged,
+
     add_homework
     add_homework_chose_lesson
     add_homework_chose_day
+
+    check_homework_in_day
+    check_homework_for_lesson
+    check_homework
+
     """
 
     def __init__(self, chat_id, group_name):
@@ -71,6 +77,9 @@ class User:
     def enter_lessons_status(self):
         self.status = 'enter_lessons'
 
+    def reged_status(self):
+        self.status = 'reged'
+
     # methods for reged users
     def add_homework_chose_lesson_status(self):
         self.status = 'add_homework_chose_lesson'
@@ -95,6 +104,15 @@ class User:
             self.status = 'reged'
             return False
 
+    def check_homework_status(self):
+        self.status = 'check_homework'
+
+    def check_homework_in_day_status(self):
+        self.status = 'check_homework_in_day'
+
+    def check_homework_for_lesson_status(self):
+        self.status = 'check_homework_for_lesson'
+
     def get_all_homework(self):
         return self.week_list
 
@@ -110,6 +128,7 @@ class User:
             return False
 
     def get_current_homework(self, lesson):
+        """:returns dict {day: homework} """
         homework = {}
         for week in range(len(self.week_list)):
             for day in list(self.week_list[week].keys()):
@@ -182,7 +201,7 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
     return answer
 
 
-def fill_homework(user_id, message):
+def fill_homework(user_id, message):  # add keyboard_args
     user = users[user_id]
     message = message.lower()
 
@@ -207,12 +226,53 @@ def fill_homework(user_id, message):
         pass
 
 
+def check_homework(user_id, message):  # not tested
+    """
+
+    :param user_id:
+    :param message: gets buttons answer (if chose day -> message [week,day])
+    :return:
+    """
+    user = users[user_id]
+    try:
+        message = message.lower()
+    except AttributeError:
+        pass
+
+    if message == 'посмотреть дз':
+        answer = user.get_homework_in_day(message[0], message[1])
+        user.check_homework_status()
+        keyboard_args = user.days_list
+        return answer
+    elif message == 'done' and user.status == 'check_homework':
+        answer = 'удачи'
+        user.reged_status()
+        return answer
+    elif user.status == 'check_homework' and message[1] in user.lessons_list:
+        answer = user.get_homework_in_day(message[0], message[1])         # need to parse answer
+        user.reged_status()
+        return answer
+    elif user.status == 'check_homework' and message == 'выбрать предмет':
+        user.check_homework_for_lesson_status()
+        keyboard_args = user.lessons_list
+        answer = 'выберите предмет'
+        return answer
+    elif user.status == 'check_homework_for_lesson' and message in user.lessons_list:
+        answer = user.get_current_homework(message)    # need to parse answer
+        user.reged_status()
+        return answer
+    else:
+        pass
+
+
 def chating(user_id, message):
     if user_id not in reged_users:
         answer = registration(user_id, message)
     elif message == 'добавить дз' and users[user_id].status == 'reged' or \
             users[user_id].status.startswith('add_homework'):
         answer = fill_homework(user_id, message)
+    elif message == 'посмотреть дз' and users[user_id].status == 'reged' or users[user_id].status.startswith('check_homework'):
+        answer = check_homework(user_id, message)
     else:
         answer = 'не понял'
 
