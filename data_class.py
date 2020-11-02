@@ -1,3 +1,5 @@
+from keyboards import start_keyboard, days_keyboard, ready_keyboard,\
+    create_check_lessons_keyboard, create_groups_keyboard, create_lessons_keyboard
 class User:
     """
     there are statuses:
@@ -164,21 +166,24 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
     if user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
         answer = 'Выбереите дни'
+        keyboard = days_keyboard
         # send request to chose days
     elif users[user_id].status == 'reged_user':
         # chose days
-        if not reg_info == 'done':
+        if not reg_info == 'готово':
             users[user_id].add_day(reg_info)
             answer = 'Выбереите дни'
+            keyboard = days_keyboard
         else:
             users[user_id].enter_lessons_status()
             answer = f'Добавьте первую пару на {users[user_id].get_current_reg_day()} (совет: ' \
                      f'добавляйте пары по которым могут выдать задание) '
             # send request to fill lessons
     elif users[user_id].status == 'enter_lessons':
-        if not reg_info == 'done':
+        if not reg_info == 'готово':
             users[user_id].add_lessons(reg_info)
             answer = 'Добавьте пару'
+            keyboard = ready_keyboard
             # send request to fill lessons and current day
         else:
             users[user_id].day_ready_status()
@@ -201,7 +206,7 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
     return answer
 
 
-def fill_homework(user_id, message):  # add keyboard_args
+def fill_homework(user_id, message):  # add keyboards
     user = users[user_id]
     message = message.lower()
 
@@ -240,13 +245,14 @@ def check_homework(user_id, message):  # not tested
         pass
 
     if message == 'посмотреть дз':
-        answer = user.get_homework_in_day(message[0], message[1])
+        answer = user.get_homework_in_day(message[0], message[1])   # fix message[]
         user.check_homework_status()
-        keyboard_args = user.days_list
+        keyboard = create_check_lessons_keyboard(user.days_list)
         return answer
-    elif message == 'done' and user.status == 'check_homework':
+    elif message == 'готово' and user.status == 'check_homework':
         answer = 'удачи'
         user.reged_status()
+        keyboard = start_keyboard
         return answer
     elif user.status == 'check_homework' and message[1] in user.lessons_list:
         answer = user.get_homework_in_day(message[0], message[1])         # need to parse answer
@@ -254,12 +260,13 @@ def check_homework(user_id, message):  # not tested
         return answer
     elif user.status == 'check_homework' and message == 'выбрать предмет':
         user.check_homework_for_lesson_status()
-        keyboard_args = user.lessons_list
+        keyboard = create_lessons_keyboard(user.lessons_list)
         answer = 'выберите предмет'
         return answer
     elif user.status == 'check_homework_for_lesson' and message in user.lessons_list:
         answer = user.get_current_homework(message)    # need to parse answer
         user.reged_status()
+        keyboard = start_keyboard
         return answer
     else:
         pass
