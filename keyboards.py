@@ -9,8 +9,8 @@ start_keyboard.add(item_check, item_add)
 days_keyboard = types.ReplyKeyboardMarkup()
 days_keyboard.add('пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'готово')
 
-ready_keyboard = types.ReplyKeyboardMarkup()
-ready_keyboard.row('готово')
+ready_keyboard = types.ReplyKeyboardMarkup(row_width=1)
+ready_keyboard.add('готово')
 
 add_week_keyboard = types.ReplyKeyboardMarkup()
 add_week_keyboard.add('Добавить числитель', 'Нет')
@@ -24,7 +24,7 @@ def create_lessons_keyboard(lessons: list):
     return lessons_keyboard
 
 
-def create_check_lessons_keyboard(days: list):
+def create_choose_day_keyboard(days: list):
     chack_lessons_keyboard = types.ReplyKeyboardMarkup()
     button = types.KeyboardButton('Thanks')
     chack_lessons_keyboard.add(button)
@@ -42,3 +42,11 @@ def create_groups_keyboard(groups):
     button = types.KeyboardButton('Добавить группу')
     groups_keyboard.add(button)
     return groups_keyboard
+
+
+def create_check_homework_keyboard(days):
+    check_hmwk_keyboard = types.ReplyKeyboardMarkup()
+    check_hmwk_keyboard.add('Суппер!')
+    for day in days:
+        check_hmwk_keyboard.row(day)
+    check_hmwk_keyboard.add('Выбрать предмет')
