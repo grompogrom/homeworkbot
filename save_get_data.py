@@ -10,6 +10,7 @@ def load_data():
         users = pickle.load(r)
     return users
 
+
 if __name__ == '__main__':
     data = {'121':'srfd'}
     save_data(data)

@@ -7,10 +7,15 @@ item_add = types.KeyboardButton('Добавить дз')
 start_keyboard.add(item_check, item_add)
 
 days_keyboard = types.ReplyKeyboardMarkup()
-days_keyboard.add(['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'готово'])
+days_keyboard.add('пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'готово')
 
 ready_keyboard = types.ReplyKeyboardMarkup()
 ready_keyboard.row('готово')
+
+add_week_keyboard = types.ReplyKeyboardMarkup()
+add_week_keyboard.add('Добавить числитель', 'Нет')
+
+
 def create_lessons_keyboard(lessons: list):
     lessons_keyboard = types.ReplyKeyboardMarkup()
     for lesson in lessons:

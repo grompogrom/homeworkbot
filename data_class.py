@@ -1,4 +1,4 @@
-from keyboards import start_keyboard, days_keyboard, ready_keyboard,\
+from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard,\
     create_check_lessons_keyboard, create_groups_keyboard, create_lessons_keyboard
 class User:
     """
@@ -147,6 +147,15 @@ users = {}
 reged_users = []
 
 
+def begining():
+    groups = []
+    for user in list(users.values()):
+        if user.group_name not in groups:
+            groups.append(user.group_name)
+    keyboard = create_groups_keyboard(groups)
+    return keyboard
+
+
 def registration(user_id, reg_info=None):  # need to add keyboard in answer
     """
     Takes unreged user
@@ -158,12 +167,16 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
         reg_info = reg_info.lower()
     except AttributeError:
         pass
-    answer = ''
+    answer = None
+    keyboard = None
     for user in list(users.values()):
         if user.group_name == reg_info and user.status == ('reg' or 'add_homework'):
             users[user_id] = user
+            reged_users.append(user_id)
 
-    if user_id not in list(users.keys()):
+    if user_id not in list(users.keys()) and reg_info == 'добавить группу':
+        pass
+    elif user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
         answer = 'Выбереите дни'
         keyboard = days_keyboard
@@ -190,20 +203,21 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
             users[user_id].compile_day()
             if users[user_id].status == 'week_ready' and users[user_id].quantity_weaks == 1:
                 answer = 'Добавить числитель?'
+                keyboard = add_week_keyboard
             elif users[user_id].status == 'enter_lessons':
                 answer = f'Добавьте пару на {users[user_id].get_current_reg_day()}'
             else:
                 registration(user_id)
             # send request to fill lessons and current day
     elif users[user_id].status == 'week_ready':
-        if reg_info == 'add_week':
+        if reg_info == 'добавить числитель':
             users[user_id].set_quantity_weaks(2)
             answer = f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару'
         users[user_id].compile_week()
 
         print(users[user_id].week_list)
     print('log ' + users[user_id].status)
-    return answer
+    return [answer, keyboard]
 
 
 def fill_homework(user_id, message):  # add keyboards
