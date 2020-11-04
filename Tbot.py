@@ -16,7 +16,7 @@ def start_info(message):
 @bot.message_handler(content_types=['text'])
 def get_text_mess(message):
     chat_id = message.from_user.id
-    answer = chating(chat_id, message)
+    answer = chating(chat_id, message.text)
     bot.send_message(chat_id, answer[0], reply_markup= answer[1])
 
 

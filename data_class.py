@@ -175,7 +175,8 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
             reged_users.append(user_id)
 
     if user_id not in list(users.keys()) and reg_info == 'добавить группу':
-        pass
+        answer = 'Введи свою группу'
+        keyboard = None
     elif user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
         answer = 'Выбереите дни'
@@ -191,6 +192,7 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
             users[user_id].enter_lessons_status()
             answer = f'Добавьте первую пару на {users[user_id].get_current_reg_day()} (совет: ' \
                      f'добавляйте пары по которым могут выдать задание) '
+            keyboard = ready_keyboard
             # send request to fill lessons
     elif users[user_id].status == 'enter_lessons':
         if not reg_info == 'готово':
@@ -207,16 +209,24 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
             elif users[user_id].status == 'enter_lessons':
                 answer = f'Добавьте пару на {users[user_id].get_current_reg_day()}'
             else:
-                registration(user_id)
+                answer = registration(user_id)
+                keyboard = start_keyboard
             # send request to fill lessons and current day
     elif users[user_id].status == 'week_ready':
         if reg_info == 'добавить числитель':
             users[user_id].set_quantity_weaks(2)
             answer = f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару'
+            keyboard = ready_keyboard
+        else:
+            answer = 'рассписание составленно )'
+            keyboard = start_keyboard
         users[user_id].compile_week()
 
         print(users[user_id].week_list)
-    print('log ' + users[user_id].status)
+    try:
+        print('log ' + users[user_id].status)
+    except KeyError:
+        print('log user aren t have class')
     return [answer, keyboard]
 
 
