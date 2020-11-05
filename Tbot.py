@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import telebot
 from config import TOKEN
-from data_class import chating, begining
+from chat_logic import chating, begining
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -21,4 +21,8 @@ def get_text_mess(message):
     bot.send_message(chat_id, answer[0], reply_markup= answer[1])
 
 
-bot.polling(none_stop=True, interval=0)
+try:
+    bot.polling(none_stop=True, interval=0)
+except Exception as e:
+    print(e)
+    pass
