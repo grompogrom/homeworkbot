@@ -1,6 +1,3 @@
-
-
-
 class User:
     """
     there are statuses:
@@ -119,7 +116,7 @@ class User:
     def get_all_homework(self):
         return self.week_list
 
-    def get_homework_in_day(self, day, week):
+    def get_homework_in_day(self, week, day):
         """
         :param day:
         :param week:
@@ -147,4 +144,3 @@ class User:
 
 
 reged_users = []
-
