@@ -1,3 +1,4 @@
+import save_get_data
 class User:
     """
     there are statuses:
@@ -70,6 +71,7 @@ class User:
         else:
             self.status = 'reged'
             reged_users.append(self.chat_id)
+            save_get_data.save_reged(reged_users)
         self.curent_reg_day = 0
         self.days = {}
         self.lessons = {}
@@ -143,4 +145,7 @@ class User:
             return
 
 
-reged_users = []
+try:
+    reged_users = save_get_data.load_reged()
+except Exception:
+    reged_users = []

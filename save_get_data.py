@@ -1,19 +1,34 @@
-def save_data(file):
+def save_users(file):
     import pickle
-    with open('data.picle', 'wb') as f:
-        pickle.dump(file,f)
+    with open('users_info.picle', 'wb') as f:
+        pickle.dump(file, f)
 
 
-def load_data():
-    import  pickle
-    with open('data.picle', 'rb') as r:
+def load_users():
+    import pickle
+    users = {}
+    with open('users_info.picle', 'rb') as r:
+        users = pickle.load(r)
+    return users
+
+
+def save_reged(file):
+    import pickle
+    with open('reged.picle', 'wb') as f:
+        pickle.dump(file, f)
+
+
+def load_reged():
+    import pickle
+    users = []
+    with open('reged.picle', 'rb') as r:
         users = pickle.load(r)
     return users
 
 
 if __name__ == '__main__':
     data = {'121':'srfd'}
-    save_data(data)
+    save_users(data)
     del data
-    data = load_data()
+    data = load_users()
     print(data)
