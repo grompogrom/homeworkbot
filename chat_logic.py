@@ -2,7 +2,11 @@ from data_class import User, reged_users
 from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard,\
     create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
 import time_processes
-users = {}
+import save_get_data
+try:
+    users = save_get_data.load_users()
+except Exception:
+    users = {}
 
 
 def begining():
@@ -30,6 +34,7 @@ def registration(user_id, reg_info=None):
     for user in list(users.values()):
         if user.group_name == reg_info and user.status == ('reg' or 'add_homework'):
             users[user_id] = user
+            save_get_data.save_users(users)
             reged_users.append(user_id)
 
     if user_id not in list(users.keys()) and reg_info == 'добавить группу':
@@ -37,6 +42,7 @@ def registration(user_id, reg_info=None):
         keyboard = None
     elif user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
+        save_get_data.save_users(users)
         answer = 'Выбереите дни'
         keyboard = days_keyboard
     elif users[user_id].status == 'reged_user':
@@ -127,28 +133,34 @@ def check_homework(user_id, message):  # not tested
     if message == 'узнать дз':
         tomorrow = time_processes.next_day_info()
         answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])   # fixme need to parse
+        if not answer:
+            answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий нет \nПлохая: их могли забыть добавить'
         keyboard = create_check_homework_keyboard(user.days_list)
         user.check_homework_status()
         return [answer, keyboard]
+
     elif message == 'готово' and user.status == 'check_homework':
         answer = 'удачи'
         user.reged_status()
         keyboard = start_keyboard
-        return [answer,keyboard]
+        return [answer, keyboard]
+
     elif user.status == 'check_homework' and message[1] in user.lessons_list:
         answer = user.get_homework_in_day(message[0], message[1])         # need to parse answer
+        keyboard = start_keyboard
         user.reged_status()
-        return answer
+        return [answer, keyboard]
+
     elif user.status == 'check_homework' and message == 'выбрать предмет':
         user.check_homework_for_lesson_status()
         keyboard = create_lessons_keyboard(user.lessons_list)
         answer = 'выберите предмет'
-        return answer
+        return [answer, keyboard]
     elif user.status == 'check_homework_for_lesson' and message in user.lessons_list:
         answer = user.get_current_homework(message)    # need to parse answer
         user.reged_status()
         keyboard = start_keyboard
-        return answer
+        return [answer, keyboard]
     else:
         pass
 
