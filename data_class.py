@@ -1,5 +1,8 @@
 from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard,\
-    create_check_lessons_keyboard, create_groups_keyboard, create_lessons_keyboard
+    create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
+import time_processes
+
+
 class User:
     """
     there are statuses:
@@ -124,6 +127,8 @@ class User:
         :param week:
         :return False if there is no lessons:
         """
+        if self.quantity_weaks == 1:
+            week = 0
         if day in list(self.week_list[week].keys()):
             return self.week_list[week][day]
         else:
@@ -156,7 +161,7 @@ def begining():
     return keyboard
 
 
-def registration(user_id, reg_info=None):  # need to add keyboard in answer
+def registration(user_id, reg_info=None):
     """
     Takes unreged user
     :param user_id:
@@ -181,7 +186,6 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
         users[user_id] = User(user_id, reg_info)
         answer = 'Выбереите дни'
         keyboard = days_keyboard
-        # send request to chose days
     elif users[user_id].status == 'reged_user':
         # chose days
         if not reg_info == 'готово':
@@ -211,7 +215,6 @@ def registration(user_id, reg_info=None):  # need to add keyboard in answer
             else:
                 answer = registration(user_id)
                 keyboard = start_keyboard
-            # send request to fill lessons and current day
     elif users[user_id].status == 'week_ready':
         if reg_info == 'добавить числитель':
             users[user_id].set_quantity_weaks(2)
@@ -236,7 +239,7 @@ def fill_homework(user_id, message):  # add keyboards
 
     if message == 'добавить дз' and user.status == 'reged':
         user.add_homework_chose_lesson_status()
-        return 'выберите предмет'
+        return ['выберите предмет', create_lessons_keyboard(user.lessons_list)]
     elif user.status == 'add_homework_chose_lesson':
         user.homework.append(message)
         user.add_homework_chose_day_status()
@@ -259,7 +262,7 @@ def check_homework(user_id, message):  # not tested
     """
 
     :param user_id:
-    :param message: gets buttons answer (if chose day -> message [week,day])
+    :param message:
     :return:
     """
     user = users[user_id]
@@ -268,16 +271,17 @@ def check_homework(user_id, message):  # not tested
     except AttributeError:
         pass
 
-    if message == 'посмотреть дз':
-        answer = user.get_homework_in_day(message[0], message[1])   # fix message[]
+    if message == 'узнать дз':
+        tomorrow = time_processes.next_day_info()
+        answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])   # fixme need to parse
+        keyboard = create_check_homework_keyboard(user.days_list)
         user.check_homework_status()
-        keyboard = create_check_lessons_keyboard(user.days_list)
-        return answer
+        return [answer, keyboard]
     elif message == 'готово' and user.status == 'check_homework':
         answer = 'удачи'
         user.reged_status()
         keyboard = start_keyboard
-        return answer
+        return [answer,keyboard]
     elif user.status == 'check_homework' and message[1] in user.lessons_list:
         answer = user.get_homework_in_day(message[0], message[1])         # need to parse answer
         user.reged_status()
@@ -299,13 +303,14 @@ def check_homework(user_id, message):  # not tested
 def chating(user_id, message):
     if user_id not in reged_users:
         answer = registration(user_id, message)
-    elif message == 'добавить дз' and users[user_id].status == 'reged' or \
+    elif message == 'Добавить дз' and users[user_id].status == 'reged' or \
             users[user_id].status.startswith('add_homework'):
         answer = fill_homework(user_id, message)
-    elif message == 'посмотреть дз' and users[user_id].status == 'reged' or users[user_id].status.startswith('check_homework'):
+    elif message == 'Узнать дз' and users[user_id].status == 'reged' or users[user_id].status.startswith('check_homework'):
         answer = check_homework(user_id, message)
     else:
-        answer = 'не понял'
+        answer = ['не понял', start_keyboard]
+
 
     return answer
 
