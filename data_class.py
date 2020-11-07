@@ -1,4 +1,6 @@
 import save_get_data
+
+
 class User:
     """
     there are statuses:
@@ -29,14 +31,14 @@ class User:
         self.week_list = []
         self.curent_reg_week = 0
         self.lessons_list = []
-        self.quantity_weaks = 1
-        self.homework = []
+        self.quantity_weeks = 1
+        self.homework = {'lesson': None, 'day': None}
 
     def day_ready_status(self):
         self.status = 'day_ready'
 
     def set_quantity_weaks(self, q):
-        self.quantity_weaks = q
+        self.quantity_weeks = q
 
     def get_current_reg_day(self):
         return self.days_list[self.curent_reg_day]
@@ -65,7 +67,7 @@ class User:
 
     def compile_week(self):
         self.week_list.append(self.days)
-        if len(self.week_list) < self.quantity_weaks:
+        if len(self.week_list) < self.quantity_weeks:
             self.curent_reg_week += 1
             self.status = 'enter_lessons'
         else:
@@ -92,19 +94,31 @@ class User:
     def add_homework_status(self):
         self.status = 'add_homework'
 
-    def add_homework(self):
+    def find_day_with_lesson(self, lesson):
+        days = []
+        for week in self.week_list:
+            for day in list(week.keys()):
+                if lesson in week[day].keys():
+                    days.append(day)
+
+    def add_homework_lesson(self, lesson):
+        if lesson in self.lessons_list:
+            self.homework['lesson'] = lesson
+            self.status = 'add_homework_chose_day'
+
+    def add_homework_day(self, day):
+        if day in self.find_day_with_lesson(self.homework['lesson']):
+            self.homework['day'] = day
+            self.status = 'add_homework'
+
+    def add_homework(self, note):  # fixme
         """
-        takes week "0,1" ;
-        lesson;
-        homework
-        and add homework to next day that have this lesson.
-        :returns False if there is not this lesson or not correct status:
+
         """
-        if self.homework[0] in self.lessons_list and self.status == 'add_homework':
-            self.week_list[self.homework[0]][self.homework[1][0]][self.homework[1][1]] = self.homework[2]
-        else:
+        if self.status == 'add_homework':
+            self.week_list[0][self.homework['day']][self.homework['lesson']] = note
             self.status = 'reged'
-            return False
+        self.homework = {}
 
     def check_homework_status(self):
         self.status = 'check_homework'
@@ -124,7 +138,7 @@ class User:
         :param week:
         :return False if there is no lessons:
         """
-        if self.quantity_weaks == 1:
+        if self.quantity_weeks == 1:
             week = 0
         if day in list(self.week_list[week].keys()):
             return self.week_list[week][day]
