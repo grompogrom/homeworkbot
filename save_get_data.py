@@ -27,8 +27,5 @@ def load_reged():
 
 
 if __name__ == '__main__':
-    data = {'121':'srfd'}
-    save_users(data)
-    del data
-    data = load_users()
-    print(data)
+    save_users({})
+    save_reged([])
