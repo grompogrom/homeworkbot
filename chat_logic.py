@@ -3,6 +3,7 @@ from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_ke
     create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
 import time_processes
 import save_get_data
+import tools
 try:
     users = save_get_data.load_users()
 except Exception:
@@ -133,23 +134,26 @@ def check_homework(user_id, message):  # not tested
     except AttributeError:
         pass
 
-    if message == 'узнать дз':
+    print(message, user.lessons_list)
+    if message == 'узнать дз' and user.status == 'reged':
         tomorrow = time_processes.next_day_info()
-        answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])   # fixme need to parse
+        answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])
+        answer = tools.message_parser(answer)
         if not answer:
             answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий нет \nПлохая: их могли забыть добавить'
         keyboard = create_check_homework_keyboard(user.days_list)
         user.check_homework_status()
         return [answer, keyboard]
 
-    elif message == 'готово' and user.status == 'check_homework':
+    elif message == 'суппер!' and user.status == 'check_homework':
         answer = 'удачи'
         user.reged_status()
         keyboard = start_keyboard
         return [answer, keyboard]
 
-    elif user.status == 'check_homework' and message[1] in user.lessons_list:
-        answer = user.get_homework_in_day(message[0], message[1])         # need to parse answer
+    elif user.status == 'check_homework' and message in user.days_list:
+        answer = user.get_homework_in_day(1, message)
+        answer = tools.message_parser(answer).title()
         keyboard = start_keyboard
         user.reged_status()
         return [answer, keyboard]
@@ -160,12 +164,13 @@ def check_homework(user_id, message):  # not tested
         answer = 'выберите предмет'
         return [answer, keyboard]
     elif user.status == 'check_homework_for_lesson' and message in user.lessons_list:
-        answer = user.get_current_homework(message)    # need to parse answer
+        answer = user.get_current_homework(message)
+        answer = tools.message_parser(answer).title()
         user.reged_status()
         keyboard = start_keyboard
         return [answer, keyboard]
     else:
-        pass
+        print('не прошло')
 
 
 def chating(user_id, message):
