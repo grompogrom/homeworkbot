@@ -29,11 +29,8 @@ def create_lessons_keyboard(lessons: list):
 
 def create_choose_day_keyboard(days: list):
     check_lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button = types.KeyboardButton('Thanks')
-    check_lessons_keyboard.add(button)
-    check_lessons_keyboard.row(days)
-    button = types.KeyboardButton('Выбрать предмет')
-    check_lessons_keyboard.add(button)
+    for day in days:
+        check_lessons_keyboard.row(day)
     return check_lessons_keyboard
 
 
