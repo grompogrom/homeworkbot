@@ -1,5 +1,8 @@
 from telebot import types
 
+remove_keyboard = types.ReplyKeyboardRemove()
+
+
 start_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
 item_check = types.KeyboardButton('Узнать дз')
