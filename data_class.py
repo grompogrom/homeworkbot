@@ -100,6 +100,7 @@ class User:
             for day in list(week.keys()):
                 if lesson in week[day].keys():
                     days.append(day)
+        return days
 
     def add_homework_lesson(self, lesson):
         if lesson in self.lessons_list:
@@ -148,15 +149,13 @@ class User:
     def get_current_homework(self, lesson):
         """:returns dict {day: homework} """
         homework = {}
-        for week in range(len(self.week_list)):
-            for day in list(self.week_list[week].keys()):
-                for less in list(self.week_list[week][day].keys()):
+        for week in self.week_list:
+            print(week)
+            for day in list(week.keys()):
+                for less in list(week[day].keys()):
                     if less == lesson:
-                        homework.update({day: self.week_list[week][day][less]})
-        if homework:
-            return homework
-        else:
-            return
+                        homework.update({day: week[day][less]})
+        return homework
 
 
 try:
