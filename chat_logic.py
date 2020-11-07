@@ -1,5 +1,5 @@
 from data_class import User, reged_users
-from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard,\
+from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard, remove_keyboard,\
     create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
 import time_processes
 import save_get_data
@@ -39,7 +39,7 @@ def registration(user_id, reg_info=None):
 
     if user_id not in list(users.keys()) and reg_info == 'добавить группу':
         answer = 'Введи свою группу'
-        keyboard = None
+        keyboard = remove_keyboard
     elif user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
         save_get_data.save_users(users)
@@ -66,7 +66,7 @@ def registration(user_id, reg_info=None):
         else:
             users[user_id].day_ready_status()
             users[user_id].compile_day()
-            if users[user_id].status == 'week_ready' and users[user_id].quantity_weaks == 1:
+            if users[user_id].status == 'week_ready' and users[user_id].quantity_weeks == 1:
                 answer = 'Добавить числитель?'
                 keyboard = add_week_keyboard
             elif users[user_id].status == 'enter_lessons':
@@ -83,6 +83,7 @@ def registration(user_id, reg_info=None):
             answer = 'рассписание составленно )'
             keyboard = start_keyboard
         users[user_id].compile_week()
+        save_get_data.save_users(users)
 
         print(users[user_id].week_list)
     try:
@@ -92,27 +93,28 @@ def registration(user_id, reg_info=None):
     return [answer, keyboard]
 
 
-def fill_homework(user_id, message):  # add keyboards
+def fill_homework(user_id, message):  # add supporting weeks and protection
     user = users[user_id]
     message = message.lower()
 
     if message == 'добавить дз' and user.status == 'reged':
         user.add_homework_chose_lesson_status()
-        return ['выберите предмет', create_lessons_keyboard(user.lessons_list)]
+        return ['Выберите предмет', create_lessons_keyboard(user.lessons_list)]
     elif user.status == 'add_homework_chose_lesson':
-        user.homework.append(message)
-        user.add_homework_chose_day_status()
-        return 'выберите день'
+        user.add_homework_lesson(message)
+        answer = 'Выберите день'
+        keyboard = create_choose_day_keyboard(user.find_day_with_lesson(message))
+        return [answer, keyboard]
     elif user.status == 'add_homework_chose_day':
-        user.homework.append(message)
-        user.add_homework_status()
-        return 'Отправте дз'
+        user.add_homework_day(message)
+        answer = 'Введите задание'
+        keyboard = remove_keyboard
+        return [answer, keyboard]
     elif user.status == 'add_homework':
-        user.homework.append(message)
-        if not user.add_homework():
-            return 'ошибка добавления'
-        else:
-            return 'задание отправлено'
+        user.add_homework(message)
+        answer = 'Задание добавленно!'
+        keyboard = start_keyboard
+        return [answer, keyboard]
     else:
         pass
 
@@ -166,6 +168,10 @@ def check_homework(user_id, message):  # not tested
 
 
 def chating(user_id, message):
+    try:
+        print('chating', users[user_id].status)
+    except Exception:
+        print('chating Not reged_user')
     if user_id not in reged_users:
         answer = registration(user_id, message)
     elif message == 'Добавить дз' and users[user_id].status == 'reged' or \
