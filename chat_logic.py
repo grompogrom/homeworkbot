@@ -112,6 +112,7 @@ def fill_homework(user_id, message):  # add supporting weeks and protection
         return [answer, keyboard]
     elif user.status == 'add_homework':
         user.add_homework(message)
+        save_get_data.save_users(users)
         answer = 'Задание добавленно!'
         keyboard = start_keyboard
         return [answer, keyboard]
