@@ -1,4 +1,4 @@
-from data_class import User, reged_users
+from data_class import User, reged_users, groups
 from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard, remove_keyboard,\
     create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
 import time_processes
@@ -10,13 +10,12 @@ except Exception:
     users = {}
 
 
-def begining():
-    groups = []
-    for user in list(users.values()):
-        if user.group_name not in groups:
-            groups.append(user.group_name)
-    keyboard = create_groups_keyboard(groups)
-    return keyboard
+def begining(user_id):
+    if user_id not in list(users.keys()):
+        keyboard = create_groups_keyboard(list(groups.keys()))
+        return keyboard
+    else:
+        return start_keyboard
 
 
 def registration(user_id, reg_info=None):
@@ -30,15 +29,17 @@ def registration(user_id, reg_info=None):
         reg_info = reg_info.lower()
     except AttributeError:
         pass
+
     answer = None
     keyboard = None
-    for user in list(users.values()):
-        if user.group_name == reg_info and user.status == ('reg' or 'add_homework'):
-            users[user_id] = user
-            save_get_data.save_users(users)
-            reged_users.append(user_id)
 
-    if user_id not in list(users.keys()) and reg_info == 'добавить группу':
+    if reg_info.upper() in list(groups.keys()) and user_id not in list(users.keys()):
+        users[user_id] = User(user_id, reg_info)
+        save_get_data.save_users(users)
+        reged_users.append(user_id)
+        answer = 'Да да, припоминаю. Славная группа!'
+        keyboard = start_keyboard
+    elif user_id not in list(users.keys()) and reg_info == 'добавить группу':
         answer = 'Введи свою группу'
         keyboard = remove_keyboard
     elif user_id not in list(users.keys()):
@@ -138,9 +139,11 @@ def check_homework(user_id, message):  # not tested
     if message == 'узнать дз' and user.status == 'reged':
         tomorrow = time_processes.next_day_info()
         answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])
-        answer = tools.message_parser(answer)
-        if not answer:
-            answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий нет \nПлохая: их могли забыть добавить'
+        if answer:
+            answer = tools.message_parser(answer)
+        else:
+            answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий на завтра нет \nПлохая: их могли ' \
+                     'забыть добавить '
         keyboard = create_check_homework_keyboard(user.days_list)
         user.check_homework_status()
         return [answer, keyboard]

@@ -22,16 +22,24 @@ class User:
 
     def __init__(self, chat_id, group_name):
         self.chat_id = chat_id
-        self.status = 'reged_user'
-        self.group_name = group_name.lower()  # use Upper
+        self.group_name = group_name.upper()  # use Upper
+        if self.group_name in list(groups.keys()):
+            self.status = 'reged'
+            self.week_list = groups[self.group_name]['week_list']
+            self.days_list = groups[self.group_name]['days_list']
+            self.lessons_list = groups[self.group_name]['lessons_list']
+            self.quantity_weeks = groups[self.group_name]['quantity_weeks']
+        else:
+            groups[self.group_name] = {}
+            self.status = 'reged_user'
+            self.days_list = []
+            self.week_list = []
+            self.lessons_list = []
+            self.quantity_weeks = 1
         self.curent_reg_day = 0
         self.days = {}
         self.lessons = {}
-        self.days_list = []
-        self.week_list = []
         self.curent_reg_week = 0
-        self.lessons_list = []
-        self.quantity_weeks = 1
         self.homework = {'lesson': None, 'day': None}
 
     def day_ready_status(self):
@@ -65,6 +73,16 @@ class User:
             else:
                 self.status = 'enter_lessons'
 
+    def update_global_data(self):
+        reged_users.append(self.chat_id)
+        save_get_data.save_reged(reged_users)
+
+        groups[self.group_name]['week_list'] = self.week_list
+        groups[self.group_name]['days_list'] = self.days_list
+        groups[self.group_name]['lessons_list'] = self.lessons_list
+        groups[self.group_name]['quantity_weeks'] = self.quantity_weeks
+        save_get_data.save_groups(groups)
+
     def compile_week(self):
         self.week_list.append(self.days)
         if len(self.week_list) < self.quantity_weeks:
@@ -72,8 +90,8 @@ class User:
             self.status = 'enter_lessons'
         else:
             self.status = 'reged'
-            reged_users.append(self.chat_id)
-            save_get_data.save_reged(reged_users)
+            self.update_global_data()
+
         self.curent_reg_day = 0
         self.days = {}
         self.lessons = {}
@@ -112,12 +130,13 @@ class User:
             self.homework['day'] = day
             self.status = 'add_homework'
 
-    def add_homework(self, note):  # fixme
+    def add_homework(self, note):  # fixme add supporting 2 weeks
         """
 
         """
         if self.status == 'add_homework':
             self.week_list[0][self.homework['day']][self.homework['lesson']] = note
+            self.update_global_data()
             self.status = 'reged'
         self.homework = {}
 
@@ -162,3 +181,8 @@ try:
     reged_users = save_get_data.load_reged()
 except Exception:
     reged_users = []
+
+try:
+    groups = save_get_data.load_groups()
+except Exception:
+    groups = {}
