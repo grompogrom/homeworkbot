@@ -13,9 +13,11 @@ except Exception:
 def begining(user_id):
     if user_id not in list(users.keys()):
         keyboard = create_groups_keyboard(list(groups.keys()))
-        return keyboard
+        answer = 'Доров, выбери свою группу'
+        return [answer, keyboard]
     else:
-        return start_keyboard
+        answer = 'Нормально же общались. Что ты начинаешь'
+        return [answer, start_keyboard]
 
 
 def registration(user_id, reg_info=None):
@@ -37,6 +39,7 @@ def registration(user_id, reg_info=None):
         users[user_id] = User(user_id, reg_info)
         save_get_data.save_users(users)
         reged_users.append(user_id)
+        save_get_data.save_reged(reged_users)
         answer = 'Да да, припоминаю. Славная группа!'
         keyboard = start_keyboard
     elif user_id not in list(users.keys()) and reg_info == 'добавить группу':
@@ -182,6 +185,7 @@ def chating(user_id, message):
     except Exception:
         print('chating Not reged_user')
     if user_id not in reged_users:
+        print('registration')
         answer = registration(user_id, message)
     elif message == 'Добавить дз' and users[user_id].status == 'reged' or \
             users[user_id].status.startswith('add_homework'):
@@ -190,7 +194,6 @@ def chating(user_id, message):
         answer = check_homework(user_id, message)
     else:
         answer = ['не понял', start_keyboard]
-
 
     return answer
 
