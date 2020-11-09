@@ -21,16 +21,13 @@ add_week_keyboard.add('Добавить числитель', 'Нет')
 
 def create_lessons_keyboard(lessons: list):
     lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    for lesson in lessons:
-        button = types.KeyboardButton(lesson)
-        lessons_keyboard.add(button)
+    button_tool(lessons_keyboard, lessons)
     return lessons_keyboard
 
 
 def create_choose_day_keyboard(days: list):
     check_lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    for day in days:
-        check_lessons_keyboard.row(day)
+    button_tool(check_lessons_keyboard, days)
     return check_lessons_keyboard
 
 
@@ -47,10 +44,44 @@ def create_groups_keyboard(groups):
 def create_check_homework_keyboard(days):
     check_hmwk_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     check_hmwk_keyboard.add('Суппер!')
-    for day in days:
-        check_hmwk_keyboard.add(day)
+    check_hmwk_keyboard = button_tool(check_hmwk_keyboard,days)
     check_hmwk_keyboard.add('Выбрать предмет')
     return check_hmwk_keyboard
+
+
+def button_tool(keyboard, buttons_text):
+
+    if len(buttons_text) == 10:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
+                     buttons_text[5], buttons_text[6], buttons_text[7], buttons_text[8], buttons_text[9])
+    if len(buttons_text) == 9:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
+                     buttons_text[5], buttons_text[6], buttons_text[7], buttons_text[8])
+    elif len(buttons_text) == 8:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
+                     buttons_text[5], buttons_text[6], buttons_text[7])
+    elif len(buttons_text) == 7:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
+                     buttons_text[5], buttons_text[6])
+    elif len(buttons_text) == 6:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
+                     buttons_text[5])
+    elif len(buttons_text) == 5:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4])
+    elif len(buttons_text) == 4:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3])
+    elif len(buttons_text) == 3:
+        keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2])
+    elif len(buttons_text) == 2:
+        keyboard.row(buttons_text[0], buttons_text[1])
+    elif len(buttons_text) == 1:
+        keyboard.row(buttons_text[0])
+    else:
+        for button in buttons_text:
+            keyboard.row(button)
+
+    return keyboard
+
 
 
 if __name__ == '__main__':
