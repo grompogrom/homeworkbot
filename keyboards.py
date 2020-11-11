@@ -1,5 +1,5 @@
 from telebot import types
-
+from tools import add_suffix
 remove_keyboard = types.ReplyKeyboardRemove()
 
 
@@ -27,7 +27,11 @@ def create_lessons_keyboard(lessons: list):
 
 def create_choose_day_keyboard(days: list):
     check_lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button_tool(check_lessons_keyboard, days)
+    week0 = [i for i in days if i.endswith('ч')]
+    week1 = [i for i in days if i.endswith('з')]
+    check_lessons_keyboard = button_tool(check_lessons_keyboard, week0)
+    if week1:
+        check_lessons_keyboard = button_tool(check_lessons_keyboard, week1)
     return check_lessons_keyboard
 
 
@@ -41,10 +45,16 @@ def create_groups_keyboard(groups):
     return groups_keyboard
 
 
-def create_check_homework_keyboard(days):
+def create_check_homework_keyboard(days, quantity=0):
     check_hmwk_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     check_hmwk_keyboard.add('Суппер!')
-    check_hmwk_keyboard = button_tool(check_hmwk_keyboard,days)
+    if quantity == 2:
+        days0 = add_suffix(days, ' ч')
+        days1 = add_suffix(days, ' з')
+        check_hmwk_keyboard = button_tool(check_hmwk_keyboard, days0)
+        check_hmwk_keyboard = button_tool(check_hmwk_keyboard, days1)
+    else:
+        check_hmwk_keyboard = button_tool(check_hmwk_keyboard, days)
     check_hmwk_keyboard.add('Выбрать предмет')
     return check_hmwk_keyboard
 
@@ -81,7 +91,6 @@ def button_tool(keyboard, buttons_text):
             keyboard.row(button)
 
     return keyboard
-
 
 
 if __name__ == '__main__':
