@@ -10,7 +10,8 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def start_info(message):
     chat_id = message.from_user.id
-    bot.send_message(chat_id, 'Доров, выбери свою группу', reply_markup=begining(chat_id))
+    begin_info = begining(chat_id)
+    bot.send_message(chat_id, begin_info[0], reply_markup=begin_info[1])
 
 
 @bot.message_handler(content_types=['text'])
