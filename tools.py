@@ -18,7 +18,7 @@ def add_suffix(week, suffix):
 def to_week_day(rday):
     if rday.endswith('з'):
         week = 1
-    else:
+    elif rday.endswith('ч'):
         week = 0
     day = rday[0:2]
     return week, day
@@ -36,6 +36,6 @@ def to_rday(week, day):
 
 
 if __name__ == '__main__':
-    x = to_week_day('пн ч')
-    y = to_week_day('вт з')
-    print(x,y)
+    x = ['пн ч', 'sfs']
+    x = tuple(x)
+    print(x)

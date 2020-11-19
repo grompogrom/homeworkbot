@@ -147,7 +147,7 @@ def check_homework(user_id, message):  # not tested
         else:
             answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий на завтра нет \nПлохая: их могли ' \
                      'забыть добавить '
-        keyboard = create_check_homework_keyboard(user.days_list)
+        keyboard = create_check_homework_keyboard(user.days_list, quantity=user.quantity_weeks)
         user.check_homework_status()
         return [answer, keyboard]
 
@@ -157,8 +157,15 @@ def check_homework(user_id, message):  # not tested
         keyboard = start_keyboard
         return [answer, keyboard]
 
-    elif user.status == 'check_homework' and message in user.days_list:
-        answer = user.get_homework_in_day(1, message)
+    elif user.status == 'check_homework' and message.startswith(tuple(user.days_list)):
+        try:
+            date = tools.to_week_day(message)
+            day = date[1]
+            week = date[0]
+        except Exception:
+            keyboard = create_check_homework_keyboard(user.days_list, quantity=user.quantity_weeks)
+            return ['Упс... Такого дня нет)', keyboard]
+        answer = user.get_homework_in_day(week, day)
         answer = tools.message_parser(answer).title()
         keyboard = start_keyboard
         user.reged_status()
@@ -180,6 +187,7 @@ def check_homework(user_id, message):  # not tested
 
 
 def chating(user_id, message):
+    print(message)
     try:
         print('chating', users[user_id].status)
     except Exception:

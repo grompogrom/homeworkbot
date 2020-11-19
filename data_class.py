@@ -189,12 +189,14 @@ class User:
     def get_current_homework(self, lesson):
         """:returns dict {day: homework} """
         homework = {}
+        suffix = ' ч'
         for week in self.week_list:
             print(week)
             for day in list(week.keys()):
                 for less in list(week[day].keys()):
                     if less == lesson:
-                        homework.update({day: week[day][less]})
+                        homework.update({day + suffix: week[day][less]})
+            suffix = ' з'
         return homework
 
 
