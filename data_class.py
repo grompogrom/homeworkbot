@@ -40,7 +40,7 @@ class User:
         self.days = {}
         self.lessons = {}
         self.curent_reg_week = 0
-        self.homework = {'lesson': None, 'day': None}
+        self.homework = {'lesson': None, 'day': None, 'week': None}
 
     def day_ready_status(self):
         self.status = 'day_ready'
@@ -113,29 +113,50 @@ class User:
         self.status = 'add_homework'
 
     def find_day_with_lesson(self, lesson):
+        '''
+        must gives lesson and return days with suffix
+        :param lesson:
+        :return:
+        '''
         days = []
+
+        print(f'[log] len = {len(self.lessons_list)}')
+        suffix = ' ч'
         for week in self.week_list:
             for day in list(week.keys()):
                 if lesson in week[day].keys():
-                    days.append(day)
+                    days.append(day + suffix)
+            suffix = ' з'
+        print(days)
         return days
 
     def add_homework_lesson(self, lesson):
+        print(f'[log] {lesson}, list= {self.lessons_list} ')
         if lesson in self.lessons_list:
             self.homework['lesson'] = lesson
             self.status = 'add_homework_chose_day'
 
-    def add_homework_day(self, day):
-        if day in self.find_day_with_lesson(self.homework['lesson']):
+    def add_homework_day(self, date):
+        print(f'[log] date {date}')
+        raw_date = date.rsplit(' ')
+        day = raw_date[0]
+        if raw_date[1] == 'ч':
+            week = 0
+        elif raw_date[1] == 'з':
+            week = 1
+        else:
+            return
+        if date in self.find_day_with_lesson(self.homework['lesson']):
+            self.homework['week'] = week
             self.homework['day'] = day
             self.status = 'add_homework'
 
-    def add_homework(self, note):  # fixme add supporting 2 weeks
+    def add_homework(self, note):
         """
 
         """
         if self.status == 'add_homework':
-            self.week_list[0][self.homework['day']][self.homework['lesson']] = note
+            self.week_list[self.homework['week']][self.homework['day']][self.homework['lesson']] = note
             self.update_global_data()
             self.status = 'reged'
         self.homework = {}
