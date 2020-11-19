@@ -106,9 +106,12 @@ def fill_homework(user_id, message):  # add supporting weeks and protection
         user.add_homework_chose_lesson_status()
         return ['Выберите предмет', create_lessons_keyboard(user.lessons_list)]
     elif user.status == 'add_homework_chose_lesson':
-        user.add_homework_lesson(message)
-        answer = 'Выберите день'
-        keyboard = create_choose_day_keyboard(user.find_day_with_lesson(message))
+        if user.add_homework_lesson(message):
+            answer = 'Выберите день'
+            keyboard = create_choose_day_keyboard(user.find_day_with_lesson(message))
+        else:
+            answer = 'Упс... Такого предмета нет'
+            keyboard = create_lessons_keyboard(user.lessons_list)
         return [answer, keyboard]
     elif user.status == 'add_homework_chose_day':
         user.add_homework_day(message)
@@ -183,7 +186,9 @@ def check_homework(user_id, message):  # not tested
         keyboard = start_keyboard
         return [answer, keyboard]
     else:
-        print('не прошло')
+        keyboard = create_check_homework_keyboard(user.days_list, quantity=user.quantity_weeks)
+        user.check_homework_status()
+        return ['Упс...', keyboard]
 
 
 def chating(user_id, message):

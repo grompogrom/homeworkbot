@@ -135,6 +135,9 @@ class User:
         if lesson in self.lessons_list:
             self.homework['lesson'] = lesson
             self.status = 'add_homework_chose_day'
+            return True
+        else:
+            return
 
     def add_homework_day(self, date):
         print(f'[log] date {date}')
