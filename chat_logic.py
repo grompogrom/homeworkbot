@@ -20,7 +20,7 @@ def begining(user_id):
         return [answer, start_keyboard]
 
 
-def registration(user_id, reg_info=None):
+def registration(user_id, reg_info='готово'):
     """
     Takes unreged user
     :param user_id:
@@ -90,15 +90,11 @@ def registration(user_id, reg_info=None):
         users[user_id].compile_week()
         save_get_data.save_users(users)
 
-        print(users[user_id].week_list)
-    try:
-        print('log ' + users[user_id].status)
-    except KeyError:
-        print('log user aren t have class')
+        print('[log] расписание составлено: '+users[user_id].week_list)
     return [answer, keyboard]
 
 
-def fill_homework(user_id, message):  # add supporting weeks and protection
+def fill_homework(user_id, message):
     user = users[user_id]
     message = message.lower()
 
@@ -114,9 +110,12 @@ def fill_homework(user_id, message):  # add supporting weeks and protection
             keyboard = create_lessons_keyboard(user.lessons_list)
         return [answer, keyboard]
     elif user.status == 'add_homework_chose_day':
-        user.add_homework_day(message)
-        answer = 'Введите задание'
-        keyboard = remove_keyboard
+        if user.add_homework_day(message):
+            answer = 'Введите задание'
+            keyboard = remove_keyboard
+        else:
+            answer = 'Такого дня нет'
+            keyboard = create_choose_day_keyboard(user.find_day_with_lesson(user.homework['lesson']))
         return [answer, keyboard]
     elif user.status == 'add_homework':
         user.add_homework(message)
@@ -141,7 +140,6 @@ def check_homework(user_id, message):  # not tested
     except AttributeError:
         pass
 
-    print(message, user.lessons_list)
     if message == 'узнать дз' and user.status == 'reged':
         tomorrow = time_processes.next_day_info()
         answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])
@@ -192,11 +190,10 @@ def check_homework(user_id, message):  # not tested
 
 
 def chating(user_id, message):
-    print(message)
     try:
-        print('chating', users[user_id].status)
+        print(f'[log] chating {users[user_id].status}')
     except Exception:
-        print('chating Not reged_user')
+        print('[log] chating Not reged_user')
     if user_id not in reged_users:
         print('registration')
         answer = registration(user_id, message)
@@ -212,6 +209,4 @@ def chating(user_id, message):
 
 
 if __name__ == '__main__':
-    i = 123
-    while True:
-        print(chating(i, input('reg_info: ')))
+    pass

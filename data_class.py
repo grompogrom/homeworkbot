@@ -52,7 +52,7 @@ class User:
         return self.days_list[self.curent_reg_day]
 
     def add_day(self, day):
-        if day not in self.days_list:
+        if day not in self.days_list and day in ('пн', 'вт', 'ср', 'чт', 'пт', 'сб'):
             self.days.update({day: None})
             self.days_list.append(day)
 
@@ -120,18 +120,15 @@ class User:
         '''
         days = []
 
-        print(f'[log] len = {len(self.lessons_list)}')
         suffix = ' ч'
         for week in self.week_list:
             for day in list(week.keys()):
                 if lesson in week[day].keys():
                     days.append(day + suffix)
             suffix = ' з'
-        print(days)
         return days
 
     def add_homework_lesson(self, lesson):
-        print(f'[log] {lesson}, list= {self.lessons_list} ')
         if lesson in self.lessons_list:
             self.homework['lesson'] = lesson
             self.status = 'add_homework_chose_day'
@@ -140,19 +137,22 @@ class User:
             return
 
     def add_homework_day(self, date):
-        print(f'[log] date {date}')
         raw_date = date.rsplit(' ')
         day = raw_date[0]
-        if raw_date[1] == 'ч':
-            week = 0
-        elif raw_date[1] == 'з':
-            week = 1
-        else:
+        try:
+            if raw_date[1] == 'ч':
+                week = 0
+            elif raw_date[1] == 'з':
+                week = 1
+            else:
+                return
+        except IndexError:
             return
         if date in self.find_day_with_lesson(self.homework['lesson']):
             self.homework['week'] = week
             self.homework['day'] = day
             self.status = 'add_homework'
+            return True
 
     def add_homework(self, note):
         """
@@ -194,7 +194,6 @@ class User:
         homework = {}
         suffix = ' ч'
         for week in self.week_list:
-            print(week)
             for day in list(week.keys()):
                 for less in list(week[day].keys()):
                     if less == lesson:
