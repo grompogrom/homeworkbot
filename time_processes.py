@@ -1,16 +1,10 @@
-import time
 import datetime
-
-
-def check_time():
-    row = time.ctime()
-    t = time.strptime(row)
-    timeinfo = {'mon': t.tm_mon, 'mday': t.tm_mday, 'wday': t.tm_wday, 'hour': t.tm_hour, 'min': t.tm_min}
-    return timeinfo
+import pytz
 
 
 def next_day_info(week_set=None):
-    now = datetime.datetime.now()
+    tz1 = pytz.timezone('Etc/GMT+3')
+    now = datetime.datetime.now(tz=tz1)
     week_inf = now.isocalendar()
     next_wday = week_inf[2]
     if week_set:
