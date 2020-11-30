@@ -21,13 +21,13 @@ add_week_keyboard.add('Добавить знаменатель', 'Нет')
 
 
 settings_keyboard = types.InlineKeyboardMarkup()
-item_rereg = types.InlineKeyboardButton('Обновить расписание', callback_data='cb_rereg')
+item_rereg = types.InlineKeyboardButton('Обновить расписание', callback_data='cb_rereg', )
 item_history = types.InlineKeyboardButton('Архив заданий', callback_data='cb_history')
 item_feedback = types.InlineKeyboardButton('Обратная связь', callback_data='cb_feedback')
 settings_keyboard.add(item_rereg, item_history, item_feedback)
 
 def create_lessons_keyboard(lessons: list):
-    lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    lessons_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=4)
     button_tool(lessons_keyboard, lessons)
     return lessons_keyboard
 
@@ -73,7 +73,7 @@ def create_check_homework_keyboard(days, quantity=0):
     return check_hmwk_keyboard
 
 
-def button_tool(keyboard, buttons_text):
+def button_tool(keyboard, buttons_text, row_width):
 
     if len(buttons_text) == 10:
         keyboard.row(buttons_text[0], buttons_text[1], buttons_text[2], buttons_text[3], buttons_text[4],
