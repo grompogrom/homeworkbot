@@ -6,7 +6,7 @@ def next_day_info(week_set=None):
     tz1 = pytz.timezone('Etc/GMT+3')
     now = datetime.datetime.now(tz=tz1)
     week_inf = now.isocalendar()
-    next_wday = week_inf[2]
+    next_wday = week_inf[2] % 7
     if week_set:
         n_week = week_set
     else:
