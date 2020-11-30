@@ -22,7 +22,7 @@ class User:
 
     def __init__(self, chat_id, group_name):
         self.chat_id = chat_id
-        self.group_name = group_name.upper()  # use Upper
+        self.group_name = group_name
         if self.group_name in list(groups.keys()):
             self.status = 'reged'
             self.week_list = groups[self.group_name]['week_list']
@@ -74,9 +74,10 @@ class User:
                 self.status = 'enter_lessons'
 
     def update_global_data(self):
-        reged_users.append(self.chat_id)
+        if self.chat_id not in reged_users:
+            reged_users.append(self.chat_id)
         save_get_data.save_reged(reged_users)
-
+        groups[self.group_name] = {}
         groups[self.group_name]['week_list'] = self.week_list
         groups[self.group_name]['days_list'] = self.days_list
         groups[self.group_name]['lessons_list'] = self.lessons_list
@@ -200,6 +201,21 @@ class User:
                         homework.update({day + suffix: week[day][less]})
             suffix = ' з'
         return homework
+
+    def rereg(self):
+        print('удаляем')
+        self.status = 'reged_user'
+        self.days_list = []
+        self.week_list = []
+        self.lessons_list = []
+        self.quantity_weeks = 1
+        self.curent_reg_day = 0
+        self.days = {}
+        self.lessons = {}
+        self.curent_reg_week = 0
+        reged_users.remove(self.chat_id)
+
+        save_get_data.save_reged(reged_users)
 
 
 try:

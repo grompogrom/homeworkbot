@@ -1,6 +1,7 @@
 from data_class import User, reged_users, groups
-from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard, remove_keyboard,\
-    create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard
+from keyboards import start_keyboard, days_keyboard, ready_keyboard, add_week_keyboard, remove_keyboard, \
+    create_check_homework_keyboard, create_groups_keyboard, create_lessons_keyboard, create_choose_day_keyboard, \
+    create_add_lessons_keyboard, settings_keyboard
 import time_processes
 import save_get_data
 import tools
@@ -32,10 +33,10 @@ def registration(user_id, reg_info='готово'):
     except AttributeError:
         pass
 
-    answer = None
-    keyboard = None
+    answer = 'ошибка регистрации'
+    keyboard = remove_keyboard
 
-    if reg_info.upper() in list(groups.keys()) and user_id not in list(users.keys()):
+    if reg_info in list(groups.keys()) and user_id not in list(users.keys()):
         users[user_id] = User(user_id, reg_info)
         save_get_data.save_users(users)
         reged_users.append(user_id)
@@ -66,31 +67,32 @@ def registration(user_id, reg_info='готово'):
         if not reg_info == 'готово':
             users[user_id].add_lessons(reg_info)
             answer = 'Добавьте пару'
-            keyboard = ready_keyboard
+            keyboard = create_add_lessons_keyboard(users[user_id].lessons_list)
             # send request to fill lessons and current day
         else:
             users[user_id].day_ready_status()
             users[user_id].compile_day()
             if users[user_id].status == 'week_ready' and users[user_id].quantity_weeks == 1:
-                answer = 'Добавить числитель?'
+                answer = 'Добавить знаменатель?'
                 keyboard = add_week_keyboard
             elif users[user_id].status == 'enter_lessons':
                 answer = f'Добавьте пару на {users[user_id].get_current_reg_day()}'
+                keyboard = create_add_lessons_keyboard(users[user_id].lessons_list)
             else:
                 answer = registration(user_id)
                 keyboard = start_keyboard
     elif users[user_id].status == 'week_ready':
-        if reg_info == 'добавить числитель':
+        if reg_info == 'добавить знаменатель':
             users[user_id].set_quantity_weaks(2)
             answer = f'знаменатель, {users[user_id].get_current_reg_day()}, введите первую пару'
-            keyboard = ready_keyboard
+            keyboard = create_add_lessons_keyboard(users[user_id].lessons_list)
         else:
             answer = 'рассписание составленно )'
             keyboard = start_keyboard
         users[user_id].compile_week()
         save_get_data.save_users(users)
 
-        print('[log] расписание составлено: '+users[user_id].week_list)
+        print('[log] расписание составлено: ', users[user_id].week_list)
     return [answer, keyboard]
 
 
@@ -144,7 +146,7 @@ def check_homework(user_id, message):  # not tested
         tomorrow = time_processes.next_day_info()
         answer = user.get_homework_in_day(tomorrow[0], tomorrow[1])
         if answer:
-            answer = tools.message_parser(answer)
+            answer = 'Задания на завтра: \n'+ tools.message_parser(answer)
         else:
             answer = 'У меня две новости: хорошая и плохая. \nХорошая: заданий на завтра нет \nПлохая: их могли ' \
                      'забыть добавить '
@@ -189,6 +191,13 @@ def check_homework(user_id, message):  # not tested
         return ['Упс...', keyboard]
 
 
+def again_registation(user_id):
+    user = users[user_id]
+    user.rereg()
+    answer = 'Введите дни '
+    return [answer, days_keyboard]
+
+
 def chating(user_id, message):
     try:
         print(f'[log] chating {users[user_id].status}')
@@ -202,6 +211,8 @@ def chating(user_id, message):
         answer = fill_homework(user_id, message)
     elif message == 'Узнать дз' and users[user_id].status == 'reged' or users[user_id].status.startswith('check_homework'):
         answer = check_homework(user_id, message)
+    elif message == 'Опции':
+        answer = ['Вот доступные настроки', settings_keyboard]
     else:
         answer = ['не понял', start_keyboard]
 
